@@ -2,7 +2,7 @@ name: Actualizare instituții ANAF
 
 on:
   schedule:
-    - cron: '0 5 1 * *'  # lunar, în prima zi la ora 05:00 UTC
+    - cron: '0 5 1 * *'
   workflow_dispatch:
 
 jobs:
@@ -27,4 +27,3 @@ jobs:
           git add institutii.json
           git diff --cached --quiet || git commit -m "Actualizare automată instituții ANAF"
           git push
-
