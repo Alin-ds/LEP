@@ -27,3 +27,4 @@ jobs:
           git add institutii.json
           git diff --cached --quiet || git commit -m "Actualizare automată instituții ANAF"
           git push
+
