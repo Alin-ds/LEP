@@ -2,33 +2,31 @@ import requests
 import re
 import pandas as pd
 
-# Pagina cu fișierul Excel
-url = "https://extranet.anaf.mfinante.gov.ro/anaf/extranet/EXECUTIEBUGETARA/alte_rapoarte/alte_rapoarte2"
-headers = {"User-Agent": "Mozilla/5.0"}
-
-r = requests.get(url, headers=headers)
+# 1. Pagina unde apare fișierul
+url_pagina = "https://extranet.anaf.mfinante.gov.ro/anaf/extranet/EXECUTIEBUGETARA/alte_rapoarte/alte_rapoarte2"
+r = requests.get(url_pagina, headers={"User-Agent": "Mozilla/5.0"})
 html = r.text
 
-# Caută linkul către fișierul Excel
-matches = re.findall(r'href="([^"]+\.(?:xls|xlsx))"', html)
-if not matches:
-    raise Exception("❌ Nu am găsit niciun link către un fișier Excel în pagină.")
+# 2. Caută denumirea fișierului Excel
+match = re.search(r'Lista_EP_portal_\d{2}\.\d{2}\.\d{4}\.xls', html)
+if not match:
+    raise Exception("❌ Nu am găsit fișierul Excel în textul paginii.")
 
-# Ia primul link găsit
-link_excel = matches[0]
-if not link_excel.startswith("http"):
-    link_excel = "https://extranet.anaf.mfinante.gov.ro" + link_excel
+fisier = match.group(0)
+print(f"✅ Fișier găsit: {fisier}")
 
-print(f"✅ Link Excel găsit: {link_excel}")
+# 3. Construim linkul complet
+link_excel = f"https://extranet.anaf.mfinante.gov.ro/anaf/extranet/EXECUTIEBUGETARA/alte_rapoarte/alte_rapoarte2/{fisier}"
+print(f"🔗 Link complet: {link_excel}")
 
-# Descarcă fișierul Excel
-response = requests.get(link_excel)
+# 4. Descarcă fișierul Excel
+r_excel = requests.get(link_excel)
 with open("institutii.xlsx", "wb") as f:
-    f.write(response.content)
+    f.write(r_excel.content)
 
-# Citește Excelul și salvează JSON
+# 5. Transformă în JSON
 df = pd.read_excel("institutii.xlsx")
 df = df.fillna("").astype(str)
 df.to_json("institutii.json", orient="records", force_ascii=False)
 
-print("✅ Fișier institutii.json a fost generat cu succes.")
+print("✅ institutii.json generat cu succes.")
