@@ -17,7 +17,7 @@ jobs:
         run: |
           python3 -m venv venv
           source venv/bin/activate
-          pip install requests beautifulsoup4 pandas openpyxl xlrd==2.0.1
+          pip install requests beautifulsoup4 pandas openpyxl xlrd>=2.0.1
 
       - name: Rulează scriptul Python
         run: |
