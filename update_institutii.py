@@ -32,4 +32,5 @@ with open("institutii.xlsx", "wb") as f:
 # 5. Convertim în JSON
 df = pd.read_excel("institutii.xlsx")
 df = df.fillna("").astype(str)
-df.to_json("instit_
+df.to_json("institutii.json", orient="records", force_ascii=False)
+
