@@ -1,0 +1,33 @@
+name: Actualizare instituții ANAF
+
+on:
+  schedule:
+    - cron: '0 5 1 * *'  # rulează în prima zi a fiecărei luni, la ora 05:00 UTC
+  workflow_dispatch:      # permite rulare manuală
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Instalează dependințe Python
+        run: |
+          python3 -m venv venv
+          source venv/bin/activate
+          pip install requests beautifulsoup4 pandas openpyxl
+
+      - name: Rulează scriptul Python
+        run: |
+          source venv/bin/activate
+          python update_institutii.py
+
+      - name: Commit și push dacă sunt modificări
+        run: |
+          git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git config --global user.name "github-actions[bot]"
+          git add institutii.json
+          git diff --cached --quiet || git commit -m "Actualizare automată instituții ANAF"
+          git push
