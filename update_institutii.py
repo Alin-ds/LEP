@@ -1,32 +1,35 @@
 import requests
-import re
+from bs4 import BeautifulSoup
 import pandas as pd
 
-# 1. Pagina unde apare fișierul
+# 1. Pagina de unde extragem linkul
 url_pagina = "https://extranet.anaf.mfinante.gov.ro/anaf/extranet/EXECUTIEBUGETARA/alte_rapoarte/alte_rapoarte2"
-r = requests.get(url_pagina, headers={"User-Agent": "Mozilla/5.0"})
-html = r.text
+headers = {"User-Agent": "Mozilla/5.0"}
+r = requests.get(url_pagina, headers=headers)
+soup = BeautifulSoup(r.content, "html.parser")
 
-# 2. Caută denumirea fișierului Excel
-match = re.search(r'Lista_EP_portal_\d{2}\.\d{2}\.\d{4}\.xls', html)
-if not match:
-    raise Exception("❌ Nu am găsit fișierul Excel în textul paginii.")
+# 2. Caută linkul după textul ancorei
+link_excel = None
+for a in soup.find_all("a", href=True):
+    if a.text.strip().lower().startswith("lista entitatilor publice - actualizata"):
+        link_excel = a["href"]
+        break
 
-fisier = match.group(0)
-print(f"✅ Fișier găsit: {fisier}")
+if not link_excel:
+    raise Exception("❌ Nu am găsit linkul asociat cu textul 'Lista entitatilor publice - actualizata'.")
 
-# 3. Construim linkul complet
-link_excel = f"https://extranet.anaf.mfinante.gov.ro/anaf/extranet/EXECUTIEBUGETARA/alte_rapoarte/alte_rapoarte2/{fisier}"
-print(f"🔗 Link complet: {link_excel}")
+# 3. Completează linkul dacă e relativ
+if not link_excel.startswith("http"):
+    link_excel = "https://extranet.anaf.mfinante.gov.ro" + link_excel
+
+print(f"✅ Link găsit: {link_excel}")
 
 # 4. Descarcă fișierul Excel
 r_excel = requests.get(link_excel)
 with open("institutii.xlsx", "wb") as f:
     f.write(r_excel.content)
 
-# 5. Transformă în JSON
+# 5. Convertim în JSON
 df = pd.read_excel("institutii.xlsx")
 df = df.fillna("").astype(str)
-df.to_json("institutii.json", orient="records", force_ascii=False)
-
-print("✅ institutii.json generat cu succes.")
+df.to_json("instit_
