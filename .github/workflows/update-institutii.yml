@@ -1,4 +1,4 @@
-name: Actualizare instituții ANAF
+name: Actualizare instituții MFP
 
 on:
   schedule:
