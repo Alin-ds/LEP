@@ -30,38 +30,35 @@ with open("institutii.xlsx", "wb") as f:
     f.write(r_excel.content)
 
 # 5. Convertim în JSON
+# Citim Excelul
 df = pd.read_excel("institutii.xlsx")
 
-# Înlocuim NaN cu șiruri goale și forțăm toate coloanele ca text
+# Normalizează numele coloanelor
+df.columns = df.columns.str.strip().str.replace(r"\s+", " ", regex=True)
+
+# Convertim totul în string pentru siguranță
 df = df.fillna("").astype(str)
 
-# ✅ Listează coloanele care pot conține .0 și le curăță
-coloane_de_curatat = [
-    "CIF Entitate Publica",
-    "CIF in scop TVA",
-    "CIF Ordonator principal de credite (1)",
-    "CIF Ordonator principal de credite (2)"
-]
+# ✅ Detectăm automat coloanele cu valori care se termină în .0
+coloane_de_curatat = []
+for col in df.columns:
+    if df[col].str.endswith(".0").any():
+        coloane_de_curatat.append(col)
 
-# ✅ Funcția care curăță .0 de la final
+# ✅ Funcție robustă pentru eliminat sufixul .0
 def curata_cif(val):
     val_str = str(val).strip()
-    if val_str.endswith(".0"):
-        return val_str[:-2]  # eliminăm ultimii 2 caractere
-    return val_str
+    return val_str[:-2] if val_str.endswith(".0") else val_str
 
-# Aplicăm curățarea pe coloanele relevante
+# Aplicăm curățarea pe coloanele detectate
 for col in coloane_de_curatat:
-    if col in df.columns:
-        df[col] = df[col].apply(curata_cif)
+    df[col] = df[col].apply(curata_cif)
 
-# 🔍 Debug: afișăm primele 3 valori din coloanele curățate
-print("\n🔍 Preview coloane curățate:\n")
+# 🔍 Debug: afișăm coloanele curățate + câteva valori
+print("\n🧼 Coloane curățate automat:")
 for col in coloane_de_curatat:
-    if col in df.columns:
-        print(f"{col}:")
-        print(df[col].head(3).tolist())
-        print("-" * 40)
+    print(f"{col}: {df[col].head(3).tolist()}")
+    print("-" * 40)
 
 # Convertim în JSON
 df.to_json("institutii.json", orient="records", force_ascii=False)
