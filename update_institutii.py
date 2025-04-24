@@ -31,7 +31,6 @@ with open("institutii.xlsx", "wb") as f:
 
 # 5. Convertim în JSON
 df = pd.read_excel("institutii.xlsx")
-df = pd.read_excel("institutii.xlsx")
 
 # Înlocuim NaN cu șiruri goale și forțăm toate coloanele ca text
 df = df.fillna("").astype(str)
