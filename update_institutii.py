@@ -45,7 +45,7 @@ coloane_de_curatat = [
 
 for col in coloane_de_curatat:
     if col in df.columns:
-        df[col] = df[col].str.replace(r"\.0$", "", regex=True)
+        df[col] = df[col].apply(lambda x: str(x).replace('.0', '') if str(x).endswith('.0') else str(x))
 
 # 🔍 Debug: afișăm primele 3 valori din coloanele curățate
 print("\n🔍 Preview coloane curățate:\n")
