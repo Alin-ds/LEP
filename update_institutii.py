@@ -63,4 +63,22 @@ for col in coloane_de_curatat:
 # Convertim în JSON
 df.to_json("institutii.json", orient="records", force_ascii=False)
 
+import os
+from datetime import datetime
+
+# ✅ Data curentă pentru versiune
+azi = datetime.today().strftime("%Y%m%d")
+
+# ✅ Creează folderul arhiva dacă nu există
+os.makedirs("arhiva", exist_ok=True)
+
+# ✅ Salvăm versiunea Excel originală
+os.rename("institutii.xlsx", f"arhiva/institutii_{azi}.xlsx")
+
+# ✅ Salvăm și JSON-ul curățat
+df.to_json("institutii.json", orient="records", force_ascii=False)
+df.to_json(f"arhiva/institutii_{azi}.json", orient="records", force_ascii=False)
+
+# 🔍 Confirmăm în log
+print(f"\n✅ Fișiere salvate în arhiva/: institutii_{azi}.xlsx & .json\n")
 
