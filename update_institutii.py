@@ -43,9 +43,17 @@ coloane_de_curatat = [
     "CIF Ordonator principal de credite (2)"
 ]
 
+# ✅ Funcția care curăță .0 de la final
+def curata_cif(val):
+    val_str = str(val).strip()
+    if val_str.endswith(".0"):
+        return val_str[:-2]  # eliminăm ultimii 2 caractere
+    return val_str
+
+# Aplicăm curățarea pe coloanele relevante
 for col in coloane_de_curatat:
     if col in df.columns:
-        df[col] = df[col].apply(lambda x: str(x).replace('.0', '') if str(x).endswith('.0') else str(x))
+        df[col] = df[col].apply(curata_cif)
 
 # 🔍 Debug: afișăm primele 3 valori din coloanele curățate
 print("\n🔍 Preview coloane curățate:\n")
@@ -55,6 +63,7 @@ for col in coloane_de_curatat:
         print(df[col].head(3).tolist())
         print("-" * 40)
 
-df = df.fillna("").astype(str)
+# Convertim în JSON
 df.to_json("institutii.json", orient="records", force_ascii=False)
+
 
