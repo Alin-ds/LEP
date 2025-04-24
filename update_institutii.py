@@ -31,6 +31,31 @@ with open("institutii.xlsx", "wb") as f:
 
 # 5. Convertim în JSON
 df = pd.read_excel("institutii.xlsx")
+df = pd.read_excel("institutii.xlsx")
+
+# Înlocuim NaN cu șiruri goale și forțăm toate coloanele ca text
+df = df.fillna("").astype(str)
+
+# ✅ Listează coloanele care pot conține .0 și le curăță
+coloane_de_curatat = [
+    "CIF Entitate Publica",
+    "CIF in scop TVA",
+    "CIF Ordonator principal de credite (1)",
+    "CIF Ordonator principal de credite (2)"
+]
+
+for col in coloane_de_curatat:
+    if col in df.columns:
+        df[col] = df[col].str.replace(r"\.0$", "", regex=True)
+
+# 🔍 Debug: afișăm primele 3 valori din coloanele curățate
+print("\n🔍 Preview coloane curățate:\n")
+for col in coloane_de_curatat:
+    if col in df.columns:
+        print(f"{col}:")
+        print(df[col].head(3).tolist())
+        print("-" * 40)
+
 df = df.fillna("").astype(str)
 df.to_json("institutii.json", orient="records", force_ascii=False)
 
